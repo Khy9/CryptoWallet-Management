@@ -1,0 +1,535 @@
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History - CryptoWallet 2.0</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0f1f, #1b2845);
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        header {
+            background: rgba(255, 255, 255, .08);
+            padding: 20px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header h1 {
+            color: #ffd700;
+            font-size: 23px;
+            margin: 0;
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        nav a,
+        .back-link {
+            color: #ffd700;
+            text-decoration: none;
+        }
+
+        nav a:hover,
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .history-card {
+            background: rgba(255, 255, 255, .07);
+            padding: 30px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, .12);
+        }
+
+        h2 {
+            color: #ffd700;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #bdc5d8;
+            margin-bottom: 25px;
+        }
+
+        .filter-panel {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 14px;
+            margin-bottom: 22px;
+            padding: 18px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 12px;
+        }
+
+        .filter-group label {
+            display: block;
+            color: #dbe4ff;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            min-width: 0;
+            padding: 11px;
+            border-radius: 8px;
+            border: 1px solid #465575;
+            background: #101a30;
+            color: white;
+            font-size: 14px;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: 2px solid #ffd700;
+            outline-offset: 1px;
+        }
+
+        .reset-btn {
+            align-self: end;
+            padding: 11px 15px;
+            border-radius: 8px;
+            border: 1px solid #ffd700;
+            background: transparent;
+            color: #ffd700;
+            text-decoration: none;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 215, 0, .12);
+        }
+
+        .results-count {
+            color: #bdc5d8;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+            vertical-align: top;
+        }
+
+        th {
+            color: #ffd700;
+            background: rgba(255, 255, 255, .05);
+            white-space: nowrap;
+        }
+
+        td {
+            overflow-wrap: anywhere;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            white-space: nowrap;
+        }
+
+        .badge-deposit {
+            background: rgba(0, 255, 157, .12);
+            color: #00ff9d;
+            border: 1px solid rgba(0, 255, 157, .25);
+        }
+
+        .badge-withdrawal {
+            background: rgba(255, 100, 100, .12);
+            color: #ff8585;
+            border: 1px solid rgba(255, 100, 100, .25);
+        }
+
+        .badge-other {
+            background: rgba(150, 160, 190, .16);
+            color: #dbe4ff;
+        }
+
+        .currency {
+            font-weight: 700;
+            color: #d9ccff;
+        }
+
+        .amount {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .amount-positive {
+            color: #00ff9d;
+        }
+
+        .amount-negative {
+            color: #ff8585;
+        }
+
+        .timestamp {
+            color: #aeb7cb;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 45px 15px;
+            color: #bdc5d8;
+        }
+
+        .empty-state h3 {
+            color: #ffd700;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 11px 18px;
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+        }
+
+        .hidden-row {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .filter-panel {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 18px;
+            }
+
+            .history-card {
+                padding: 18px;
+            }
+
+            .filter-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .reset-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>₿ CryptoWallet 2.0</h1>
+
+    <nav>
+        <a th:href="@{/home}">Dashboard</a>
+        <a th:href="@{/deposit}">Deposit</a>
+        <a th:href="@{/withdraw}">Withdraw</a>
+        <a th:href="@{/history}">Transactions</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <section class="history-card">
+
+        <h2>Transaction History</h2>
+
+        <p class="subtitle">
+            Search, filter, and review your cryptocurrency wallet activity.
+        </p>
+
+        <div th:if="${transactions != null and !#lists.isEmpty(transactions)}">
+
+            <!-- Search and filters -->
+            <div class="filter-panel">
+
+                <div class="filter-group">
+                    <label for="searchInput">Search Transactions</label>
+                    <input
+                            type="search"
+                            id="searchInput"
+                            placeholder="Search ID, description, amount...">
+                </div>
+
+                <div class="filter-group">
+                    <label for="currencyFilter">Cryptocurrency</label>
+                    <select id="currencyFilter">
+                        <option value="ALL">All Currencies</option>
+                        <option value="BTC">Bitcoin (BTC)</option>
+                        <option value="ETH">Ethereum (ETH)</option>
+                        <option value="LTC">Litecoin (LTC)</option>
+                        <option value="INR">INR / Other</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="typeFilter">Transaction Type</label>
+                    <select id="typeFilter">
+                        <option value="ALL">All Types</option>
+                        <option value="DEPOSIT">Deposits</option>
+                        <option value="WITHDRAWAL">Withdrawals</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+
+                <button type="button" class="reset-btn" id="resetFilters">
+                    Reset Filters
+                </button>
+
+            </div>
+
+            <div class="results-count" id="resultsCount" aria-live="polite">
+                Showing transactions
+            </div>
+
+            <div class="table-container">
+
+                <table id="transactionTable">
+
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date &amp; Time</th>
+                        <th>Type</th>
+                        <th>Currency</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Wallet ID</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="transaction : ${transactions}"
+                        class="transaction-row"
+                        th:attr="data-id=${transaction.id},
+                                 data-type=${transaction.type != null ? transaction.type.toUpperCase() : 'OTHER'},
+                                 data-currency=${transaction.currency != null ? transaction.currency.toUpperCase() : 'INR'},
+                                 data-search=${(transaction.id != null ? transaction.id.toString() : '') + ' ' + (transaction.description != null ? transaction.description : '') + ' ' + (transaction.amount != null ? transaction.amount.toPlainString() : '') + ' ' + (transaction.currency != null ? transaction.currency : 'INR') + ' ' + (transaction.type != null ? transaction.type : '')}">
+
+                        <td th:text="${transaction.id}">1</td>
+
+                        <td>
+                            <span th:if="${transaction.timestamp != null}"
+                                  th:text="${#temporals.format(transaction.timestamp, 'dd-MM-yyyy')}">
+                                Date
+                            </span>
+
+                            <span th:if="${transaction.timestamp == null}">—</span>
+
+                            <div class="timestamp"
+                                 th:if="${transaction.timestamp != null}"
+                                 th:text="${#temporals.format(transaction.timestamp, 'HH:mm:ss')}">
+                                Time
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${transaction.type != null and transaction.type.equalsIgnoreCase('DEPOSIT')} ? ' badge-deposit' : (${transaction.type != null and transaction.type.equalsIgnoreCase('WITHDRAWAL')} ? ' badge-withdrawal' : ' badge-other')"
+                                  th:text="${transaction.type != null ? transaction.type : 'OTHER'}">
+                                DEPOSIT
+                            </span>
+                        </td>
+
+                        <td class="currency"
+                            th:text="${transaction.currency != null ? transaction.currency : 'INR'}">
+                            BTC
+                        </td>
+
+                        <td class="amount"
+                            th:classappend="${transaction.type != null and transaction.type.equalsIgnoreCase('WITHDRAWAL')} ? ' amount-negative' : ' amount-positive'"
+                            th:text="${(transaction.type != null and transaction.type.equalsIgnoreCase('WITHDRAWAL')) ? '-' : '+'} + ${transaction.amount != null ? #numbers.formatDecimal(transaction.amount.abs(), 1, 8) : '0.00000000'}">
+                            +0.01000000
+                        </td>
+
+                        <td th:text="${transaction.description != null ? transaction.description : '—'}">
+                            Transaction description
+                        </td>
+
+                        <td th:text="${transaction.wallet != null ? transaction.wallet.id : 'N/A'}">
+                            1
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="empty-state" id="noMatches" style="display: none;">
+                <h3>No Matching Transactions</h3>
+                <p>Try changing your search text or filters.</p>
+            </div>
+
+        </div>
+
+        <div class="empty-state"
+             th:if="${transactions == null or #lists.isEmpty(transactions)}">
+
+            <h3>No Transactions Yet</h3>
+
+            <p>
+                Your transaction history will appear here when you start using your wallet.
+            </p>
+
+            <a th:href="@{/deposit}" class="back-link">Make a Deposit</a>
+
+        </div>
+
+        <a th:href="@{/home}" class="back-link">← Back to Dashboard</a>
+
+    </section>
+
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const searchInput = document.getElementById('searchInput');
+        const currencyFilter = document.getElementById('currencyFilter');
+        const typeFilter = document.getElementById('typeFilter');
+        const resetButton = document.getElementById('resetFilters');
+        const resultsCount = document.getElementById('resultsCount');
+        const noMatches = document.getElementById('noMatches');
+
+        const rows = Array.from(
+            document.querySelectorAll('.transaction-row')
+        );
+
+        if (!searchInput || !currencyFilter || !typeFilter) {
+            return;
+        }
+
+        function filterTransactions() {
+
+            const searchText = searchInput.value.trim().toLowerCase();
+            const selectedCurrency = currencyFilter.value;
+            const selectedType = typeFilter.value;
+
+            let visibleCount = 0;
+
+            rows.forEach(function (row) {
+
+                const searchableText =
+                    (row.dataset.search || '').toLowerCase();
+
+                const rowCurrency = row.dataset.currency || 'INR';
+                const rowType = row.dataset.type || 'OTHER';
+
+                const matchesSearch =
+                    searchableText.includes(searchText);
+
+                const matchesCurrency =
+                    selectedCurrency === 'ALL' ||
+                    (selectedCurrency === 'INR'
+                        ? rowCurrency !== 'BTC' &&
+                          rowCurrency !== 'ETH' &&
+                          rowCurrency !== 'LTC'
+                        : rowCurrency === selectedCurrency);
+
+                const matchesType =
+                    selectedType === 'ALL' ||
+                    (selectedType === 'OTHER'
+                        ? rowType !== 'DEPOSIT' &&
+                          rowType !== 'WITHDRAWAL'
+                        : rowType === selectedType);
+
+                const visible =
+                    matchesSearch && matchesCurrency && matchesType;
+
+                row.classList.toggle('hidden-row', !visible);
+
+                if (visible) {
+                    visibleCount++;
+                }
+            });
+
+            if (resultsCount) {
+                resultsCount.textContent =
+                    'Showing ' + visibleCount + ' of ' +
+                    rows.length + ' transactions';
+            }
+
+            if (noMatches) {
+                noMatches.style.display =
+                    visibleCount === 0 ? 'block' : 'none';
+            }
+        }
+
+        searchInput.addEventListener('input', filterTransactions);
+        currencyFilter.addEventListener('change', filterTransactions);
+        typeFilter.addEventListener('change', filterTransactions);
+
+        resetButton.addEventListener('click', function () {
+            searchInput.value = '';
+            currencyFilter.value = 'ALL';
+            typeFilter.value = 'ALL';
+            filterTransactions();
+        });
+
+        filterTransactions();
+    });
+</script>
+
+</body>
+</html>
+```

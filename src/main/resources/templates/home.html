@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoWallet 2.0</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background: #f4f6fb;
+            font-family: 'Segoe UI', sans-serif;
+            color: #20243a;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #24243e, #302b63, #4b286d);
+            padding: 16px 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #302b63, #6441a5);
+            color: white;
+            border-radius: 22px;
+            padding: 35px;
+            margin-top: 30px;
+            box-shadow: 0 12px 30px rgba(48, 43, 99, 0.18);
+        }
+
+        .hero-label {
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        .hero-balance {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .portfolio-value {
+            font-size: clamp(1.7rem, 4vw, 2.5rem);
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .crypto-card {
+            background: white;
+            border-radius: 18px;
+            padding: 24px;
+            height: 100%;
+            border: 1px solid #e9eaf2;
+            box-shadow: 0 5px 18px rgba(31, 38, 70, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .crypto-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .coin-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        .btc-icon {
+            background: #fff0d9;
+            color: #d98200;
+        }
+
+        .eth-icon {
+            background: #e9eaff;
+            color: #5557b8;
+        }
+
+        .ltc-icon {
+            background: #e9f5ed;
+            color: #368458;
+        }
+
+        .coin-name {
+            color: #6e7388;
+            font-size: 0.95rem;
+        }
+
+        .coin-balance {
+            font-size: 1.45rem;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+            margin-top: 8px;
+        }
+
+        .coin-symbol {
+            color: #73788c;
+            font-size: 0.85rem;
+        }
+
+        .market-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .price-change {
+            font-size: 0.9rem;
+            margin-top: 7px;
+            font-weight: 600;
+        }
+
+        .price-positive {
+            color: #198754;
+        }
+
+        .price-negative {
+            color: #dc3545;
+        }
+
+        .price-unavailable {
+            color: #85899a;
+            font-size: 0.9rem;
+            margin-top: 12px;
+        }
+
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .summary-total {
+            background: #e9eaff;
+            color: #5557b8;
+        }
+
+        .summary-deposit {
+            background: #e5f8ed;
+            color: #198754;
+        }
+
+        .summary-withdraw {
+            background: #fff0f1;
+            color: #dc3545;
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 8px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .info-card,
+        .action-card {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            height: 100%;
+            border: 1px solid #e9eaf2;
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid #e9eaf2;
+            border-radius: 18px;
+            padding: 24px;
+            height: 100%;
+            box-shadow: 0 5px 18px rgba(31, 38, 70, 0.05);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+
+        .chart-description {
+            color: #777c90;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .action-link {
+            display: block;
+            text-decoration: none;
+            color: #302b63;
+            background: #f4f2ff;
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .action-link:hover {
+            background: #e8e3ff;
+        }
+
+        .withdraw-link {
+            color: #b42332;
+            background: #fff0f1;
+        }
+
+        .withdraw-link:hover {
+            background: #ffe0e3;
+        }
+
+        .refresh-btn {
+            border: none;
+            background: #302b63;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .refresh-btn:hover {
+            background: #4b286d;
+            color: white;
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.75;
+            cursor: wait;
+        }
+
+        .notice {
+            background: #fff8e6;
+            border: 1px solid #f4dfa1;
+            color: #785b12;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        footer {
+            color: #85899a;
+            font-size: 0.85rem;
+            padding: 30px 0;
+        }
+
+        @media (max-width: 576px) {
+            .hero {
+                padding: 25px;
+            }
+
+            .crypto-card,
+            .info-card,
+            .action-card,
+            .chart-card {
+                padding: 20px;
+            }
+
+            .chart-container {
+                height: 280px;
+            }
+        }
+
+        .recent-transactions-card {
+            background: white;
+            border: 1px solid #e9eaf2;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 5px 18px rgba(31, 38, 70, 0.05);
+        }
+
+        .transactions-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .transactions-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #eef0f6;
+            text-align: left;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .transactions-table th {
+            color: #6e7388;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .transactions-table td {
+            font-size: 0.9rem;
+        }
+
+        .transaction-type {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .transaction-deposit {
+            color: #198754;
+            background: #e5f8ed;
+        }
+
+        .transaction-withdrawal {
+            color: #dc3545;
+            background: #fff0f1;
+        }
+
+        .transaction-other {
+            color: #5557b8;
+            background: #e9eaff;
+        }
+
+        .empty-transactions {
+            padding: 24px 12px;
+            color: #777c90;
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+
+        <a class="navbar-brand" th:href="@{/home}">
+            ₿ CryptoWallet 2.0
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navigation"
+                aria-controls="navigation"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navigation">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" th:href="@{/home}">Dashboard</a>
+                <a class="nav-link" th:href="@{/deposit}">Deposit</a>
+                <a class="nav-link" th:href="@{/withdraw}">Withdraw</a>
+                <a class="nav-link" th:href="@{/transfer}">Send Money</a>
+                <a class="nav-link" th:href="@{/history}">Transactions</a>
+                <a class="nav-link" th:href="@{/logout}">Logout</a>
+            </div>
+        </div>
+    </div>
+
+</nav>
+
+<main class="container pb-4">
+
+    <!-- Welcome section -->
+    <section class="hero">
+
+        <p class="hero-label mb-2">YOUR CRYPTO PORTFOLIO</p>
+
+        <h2>
+            Welcome back,
+            <span th:text="${username}">User</span>!
+        </h2>
+
+        <p class="hero-label mt-3 mb-1">Existing Wallet Balance</p>
+
+        <div class="hero-balance"
+             th:text="${#numbers.formatDecimal(balance, 1, 'COMMA', 2, 'POINT')}">
+            0.00
+        </div>
+
+        <p class="hero-label mt-2 mb-0">
+            Legacy wallet balance. Cryptocurrency balances are tracked separately.
+        </p>
+
+        <hr class="border-light opacity-25 my-4">
+
+        <p class="hero-label mb-2">Estimated Crypto Portfolio Value (INR)</p>
+
+        <div class="portfolio-value"
+             th:if="${portfolioValue != null}"
+             th:text="${'₹ ' + #numbers.formatDecimal(portfolioValue, 1, 'COMMA', 2, 'POINT')}">
+            ₹ 0.00
+        </div>
+
+        <div class="portfolio-value"
+             th:if="${portfolioValue == null}">
+            Unavailable
+        </div>
+
+        <p class="hero-label mt-2 mb-0">
+            Estimated value based on current market prices. Actual sale proceeds may differ.
+        </p>
+
+    </section>
+
+    <!-- Transaction overview -->
+    <section class="mt-5">
+
+        <h3 class="section-title">Transaction Overview</h3>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="crypto-card summary-card">
+                    <div class="summary-icon summary-total">↔</div>
+                    <div class="coin-name">Total Transactions</div>
+                    <div class="summary-number"
+                         th:text="${totalTransactions}">0</div>
+                    <div class="coin-symbol">All recorded transactions</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="crypto-card summary-card">
+                    <div class="summary-icon summary-deposit">↓</div>
+                    <div class="coin-name">Total Deposits</div>
+                    <div class="summary-number text-success"
+                         th:text="${totalDeposits}">0</div>
+                    <div class="coin-symbol">Recorded deposit transactions</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="crypto-card summary-card">
+                    <div class="summary-icon summary-withdraw">↑</div>
+                    <div class="coin-name">Total Withdrawals</div>
+                    <div class="summary-number text-danger"
+                         th:text="${totalWithdrawals}">0</div>
+                    <div class="coin-symbol">Recorded withdrawal transactions</div>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Portfolio charts -->
+    <section class="mt-5">
+
+        <h3 class="section-title">Portfolio Analytics</h3>
+
+        <p class="chart-description">
+            Explore how your current simulated cryptocurrency holdings are distributed
+            and compare their estimated values using live market prices.
+        </p>
+
+        <div class="row g-4">
+
+            <!-- Doughnut chart -->
+            <div class="col-lg-6">
+
+                <div class="chart-card">
+
+                    <h4 class="mb-2">Portfolio Distribution</h4>
+
+                    <p class="chart-description">
+                        Share of total estimated crypto portfolio value.
+                    </p>
+
+                    <div class="chart-container">
+                        <canvas id="portfolioDoughnut"
+                                role="img"
+                                aria-label="Doughnut chart showing cryptocurrency portfolio distribution">
+                        </canvas>
+                    </div>
+
+                    <p id="doughnutMessage"
+                       class="text-secondary small mt-3 mb-0"
+                       style="display:none;">
+                        Chart unavailable because market prices could not be loaded.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Bar chart -->
+            <div class="col-lg-6">
+
+                <div class="chart-card">
+
+                    <h4 class="mb-2">Asset Value Comparison</h4>
+
+                    <p class="chart-description">
+                        Estimated INR value of each cryptocurrency holding.
+                    </p>
+
+                    <div class="chart-container">
+                        <canvas id="portfolioBar"
+                                role="img"
+                                aria-label="Bar chart comparing estimated INR values of cryptocurrency holdings">
+                        </canvas>
+                    </div>
+
+                    <p id="barMessage"
+                       class="text-secondary small mt-3 mb-0"
+                       style="display:none;">
+                        Chart unavailable because market prices could not be loaded.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Recent transactions -->
+    <section class="mt-5">
+        <div class="recent-transactions-card">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                <div>
+                    <h3 class="section-title mb-1">Recent Transactions</h3>
+                    <p class="chart-description mb-0">Your five most recent recorded wallet transactions.</p>
+                </div>
+                <a class="refresh-btn" th:href="@{/history}">View All Transactions</a>
+            </div>
+
+            <div class="transactions-table-wrap" th:if="${recentTransactions != null and !recentTransactions.isEmpty()}">
+                <table class="transactions-table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Currency</th>
+                        <th>Amount</th>
+                        <th>Date &amp; Time</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="transaction : ${recentTransactions}">
+                        <td th:text="${transaction.id}">1</td>
+                        <td>
+                            <span class="transaction-type"
+                                  th:classappend="${transaction.type != null and #strings.equalsIgnoreCase(transaction.type, 'DEPOSIT') ? ' transaction-deposit' : (transaction.type != null and #strings.equalsIgnoreCase(transaction.type, 'WITHDRAWAL') ? ' transaction-withdrawal' : ' transaction-other')}"
+                                  th:text="${transaction.type != null ? transaction.type : 'TRANSACTION'}">DEPOSIT</span>
+                        </td>
+                        <td th:text="${transaction.currency != null ? transaction.currency : '—'}">BTC</td>
+                        <td th:text="${transaction.amount != null ? #numbers.formatDecimal(transaction.amount, 1, 'POINT', 8, 'POINT') : '—'}">0.00000000</td>
+                        <td th:text="${transaction.timestamp != null ? #temporals.format(transaction.timestamp, 'dd MMM yyyy, hh:mm a') : '—'}">23 Oct 2026, 10:30 PM</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-transactions"
+                 th:if="${recentTransactions == null or recentTransactions.isEmpty()}">
+                No transactions recorded yet. Your deposits and withdrawals will appear here.
+            </div>
+        </div>
+    </section>
+
+    <!-- Cryptocurrency assets and live prices -->
+    <section class="mt-5">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+            <h3 class="section-title mb-0">Your Crypto Assets</h3>
+
+            <button type="button"
+                    class="refresh-btn"
+                    id="refreshPricesButton"
+                    onclick="refreshCryptoPrices(this)">
+                ↻ Refresh Prices
+            </button>
+
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Bitcoin -->
+            <div class="col-md-4">
+                <div class="crypto-card">
+
+                    <div class="coin-icon btc-icon">₿</div>
+                    <div class="coin-name">Bitcoin</div>
+
+                    <h4 class="coin-balance"
+                        th:text="${#numbers.formatDecimal(btcBalance, 1, 8)}">
+                        0.00000000
+                    </h4>
+
+                    <div class="coin-symbol">BTC Balance</div>
+
+                    <hr>
+
+                    <div class="coin-name">Current Market Price</div>
+
+                    <div class="market-price"
+                         th:if="${btcPrice != null}"
+                         th:text="${'₹ ' + #numbers.formatDecimal(btcPrice, 1, 'COMMA', 2, 'POINT')}">
+                        ₹ 0.00
+                    </div>
+
+                    <div class="price-unavailable"
+                         th:if="${btcPrice == null}">
+                        Market price unavailable
+                    </div>
+
+                    <div class="price-change"
+                         th:if="${btcChange != null}"
+                         th:classappend="${btcChange >= 0 ? ' price-positive' : ' price-negative'}">
+                        <span th:text="${btcChange >= 0 ? '+' : ''}">+</span><span
+                            th:text="${#numbers.formatDecimal(btcChange, 1, 2)}">0.00</span>% (24h)
+                    </div>
+
+                    <div class="price-unavailable"
+                         th:if="${btcChange == null}">
+                        24-hour change unavailable
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Ethereum -->
+            <div class="col-md-4">
+                <div class="crypto-card">
+
+                    <div class="coin-icon eth-icon">◆</div>
+                    <div class="coin-name">Ethereum</div>
+
+                    <h4 class="coin-balance"
+                        th:text="${#numbers.formatDecimal(ethBalance, 1, 8)}">
+                        0.00000000
+                    </h4>
+
+                    <div class="coin-symbol">ETH Balance</div>
+
+                    <hr>
+
+                    <div class="coin-name">Current Market Price</div>
+
+                    <div class="market-price"
+                         th:if="${ethPrice != null}"
+                         th:text="${'₹ ' + #numbers.formatDecimal(ethPrice, 1, 'COMMA', 2, 'POINT')}">
+                        ₹ 0.00
+                    </div>
+
+                    <div class="price-unavailable"
+                         th:if="${ethPrice == null}">
+                        Market price unavailable
+                    </div>
+
+                    <div class="price-change"
+                         th:if="${ethChange != null}"
+                         th:classappend="${ethChange >= 0 ? ' price-positive' : ' price-negative'}">
+                        <span th:text="${ethChange >= 0 ? '+' : ''}">+</span><span
+                            th:text="${#numbers.formatDecimal(ethChange, 1, 2)}">0.00</span>% (24h)
+                    </div>
+
+                    <div class="price-unavailable"
+                         th:if="${ethChange == null}">
+                        24-hour change unavailable
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Litecoin -->
+            <div class="col-md-4">
+                <div class="crypto-card">
+
+                    <div class="coin-icon ltc-icon">Ł</div>
+                    <div class="coin-name">Litecoin</div>
+
+                    <h4 class="coin-balance"
+                        th:text="${#numbers.formatDecimal(ltcBalance, 1, 8)}">
+                        0.00000000
+                    </h4>
+
+                    <div class="coin-symbol">LTC Balance</div>
+
+                    <hr>
+
+                    <div class="coin-name">Current Market Price</div>
+
+                    <div class="market-price"
+                         th:if="${ltcPrice != null}"
+                         th:text="${'₹ ' + #numbers.formatDecimal(ltcPrice, 1, 'COMMA', 2, 'POINT')}">
+                        ₹ 0.00
+                    </div>
+
+                    <div class="price-unavailable"
+                         th:if="${ltcPrice == null}">
+                        Market price unavailable
+                    </div>
+
+                    <div class="price-change"
+                         th:if="${ltcChange != null}"
+                         th:classappend="${ltcChange >= 0 ? ' price-positive' : ' price-negative'}">
+                        <span th:text="${ltcChange >= 0 ? '+' : ''}">+</span><span
+                            th:text="${#numbers.formatDecimal(ltcChange, 1, 2)}">0.00</span>% (24h)
+                    </div>
+
+                    <div class="price-unavailable"
+                         th:if="${ltcChange == null}">
+                        24-hour change unavailable
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="notice mt-4">
+            <strong>Market data notice:</strong>
+            Prices come from an external market-data API and may be unavailable if the
+            service is unreachable or rate-limited. Your wallet balances are simulated
+            and do not represent real blockchain holdings.
+        </div>
+
+    </section>
+
+    <!-- Wallet information and quick actions -->
+    <section class="row g-4 mt-3">
+
+        <div class="col-md-6">
+            <div class="info-card">
+
+                <h4 class="section-title">Wallet Information</h4>
+
+                <p>
+                    <span class="info-label">Username</span><br>
+                    <span class="info-value" th:text="${username}">username</span>
+                </p>
+
+                <p>
+                    <span class="info-label">Email</span><br>
+                    <span class="info-value" th:text="${email}">email</span>
+                </p>
+
+                <p class="mb-0">
+                    <span class="info-label">Wallet ID</span><br>
+                    <span class="info-value" th:text="${wallet?.id}">—</span>
+                </p>
+
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="action-card">
+
+                <h4 class="section-title">Quick Actions</h4>
+
+                <a class="action-link" th:href="@{/deposit}">
+                    ↓ &nbsp; Deposit Cryptocurrency
+                </a>
+
+                <a class="action-link withdraw-link" th:href="@{/withdraw}">
+                    ↓ &nbsp; Withdraw Cryptocurrency
+                </a>
+
+                <a class="action-link" th:href="@{/transfer}">
+                    ↑ &nbsp; Send Money
+                </a>
+
+                <a class="action-link" th:href="@{/history}">
+                    ↔ &nbsp; View Transaction History
+                </a>
+
+            </div>
+        </div>
+
+    </section>
+
+    <footer class="text-center">
+        CryptoWallet 2.0 · Multi-Cryptocurrency Wallet Management
+        <br>
+        Demo application — cryptocurrency transactions are simulated.
+    </footer>
+
+</main>
+
+<script>
+    function refreshCryptoPrices(button) {
+        if (!button || button.disabled) {
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = 'Refreshing prices...';
+
+        // Reload the dashboard with a unique URL so a new request is made.
+        const refreshUrl = new URL('/home', window.location.origin);
+        refreshUrl.searchParams.set('refresh', Date.now().toString());
+        window.location.assign(refreshUrl.toString());
+    }
+</script>
+
+<script th:inline="javascript">
+    const btcBalance = Number(/*[[${btcBalance}]]*/ 0);
+    const ethBalance = Number(/*[[${ethBalance}]]*/ 0);
+    const ltcBalance = Number(/*[[${ltcBalance}]]*/ 0);
+
+    const btcPrice = /*[[${btcPrice}]]*/ null;
+    const ethPrice = /*[[${ethPrice}]]*/ null;
+    const ltcPrice = /*[[${ltcPrice}]]*/ null;
+
+    const pricesAvailable =
+        btcPrice !== null && ethPrice !== null && ltcPrice !== null;
+
+    const btcValue = pricesAvailable ? btcBalance * Number(btcPrice) : 0;
+    const ethValue = pricesAvailable ? ethBalance * Number(ethPrice) : 0;
+    const ltcValue = pricesAvailable ? ltcBalance * Number(ltcPrice) : 0;
+
+    const chartLabels = ['Bitcoin (BTC)', 'Ethereum (ETH)', 'Litecoin (LTC)'];
+    const chartValues = [btcValue, ethValue, ltcValue];
+
+    const inrFormatter = new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 2
+    });
+
+    if (typeof Chart !== 'undefined' && pricesAvailable) {
+
+        const doughnutCanvas = document.getElementById('portfolioDoughnut');
+
+        if (doughnutCanvas) {
+            new Chart(doughnutCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: chartValues,
+                        backgroundColor: ['#f7931a', '#6264d9', '#368458'],
+                        borderColor: '#ffffff',
+                        borderWidth: 3,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '62%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 18,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce(
+                                        (sum, value) => sum + value, 0
+                                    );
+
+                                    const value = Number(context.raw);
+                                    const percentage = total > 0
+                                        ? (value / total * 100).toFixed(2)
+                                        : '0.00';
+
+                                    return context.label + ': ' +
+                                        inrFormatter.format(value) +
+                                        ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        const barCanvas = document.getElementById('portfolioBar');
+
+        if (barCanvas) {
+            new Chart(barCanvas, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Estimated value (INR)',
+                        data: chartValues,
+                        backgroundColor: ['#f7931a', '#6264d9', '#368458'],
+                        borderRadius: 8,
+                        maxBarThickness: 65
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' +
+                                        new Intl.NumberFormat('en-IN', {
+                                            notation: 'compact',
+                                            maximumFractionDigits: 1
+                                        }).format(value);
+                                }
+                            },
+                            grid: {
+                                color: '#eef0f6'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return inrFormatter.format(Number(context.raw));
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+    } else {
+
+        const doughnutMessage = document.getElementById('doughnutMessage');
+        const barMessage = document.getElementById('barMessage');
+
+        if (doughnutMessage) {
+            doughnutMessage.style.display = 'block';
+        }
+
+        if (barMessage) {
+            barMessage.style.display = 'block';
+        }
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

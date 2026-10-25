@@ -1,0 +1,284 @@
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw Cryptocurrency | CryptoWallet</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            padding: 30px 16px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #94a3b8;
+        }
+
+        .balances {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .balance-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 18px 10px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .balance-card h3 {
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .balance-card p {
+            font-size: 14px;
+            overflow-wrap: anywhere;
+            color: #38bdf8;
+        }
+
+        .form-card {
+            background: #1e293b;
+            padding: 28px;
+            border: 1px solid #334155;
+            border-radius: 16px;
+        }
+
+        .form-card h2 {
+            margin-bottom: 22px;
+            font-size: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #f8fafc;
+            font-size: 15px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: 2px solid #38bdf8;
+            border-color: #38bdf8;
+        }
+
+        .withdraw-btn {
+            width: 100%;
+            padding: 14px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .withdraw-btn:hover {
+            background: #dc2626;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .success {
+            background: #14532d;
+            color: #bbf7d0;
+            border: 1px solid #166534;
+        }
+
+        .error {
+            background: #7f1d1d;
+            color: #fecaca;
+            border: 1px solid #991b1b;
+        }
+
+        .notice {
+            color: #fbbf24;
+            background: #422006;
+            border: 1px solid #854d0e;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 18px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 22px;
+            color: #38bdf8;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .balances {
+                grid-template-columns: 1fr;
+            }
+
+            .form-card {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Withdraw Cryptocurrency</h1>
+        <p>Manage your BTC, ETH and LTC balances</p>
+    </div>
+
+    <!-- Current cryptocurrency balances -->
+    <div class="balances">
+
+        <div class="balance-card">
+            <h3>₿ Bitcoin</h3>
+            <p>
+                <span th:text="${#numbers.formatDecimal(btcBalance != null ? btcBalance : 0, 1, 'POINT', 8, 'POINT')}">0.00000000</span>
+                BTC
+            </p>
+        </div>
+
+        <div class="balance-card">
+            <h3>Ξ Ethereum</h3>
+            <p>
+                <span th:text="${#numbers.formatDecimal(ethBalance != null ? ethBalance : 0, 1, 'POINT', 8, 'POINT')}">0.00000000</span>
+                ETH
+            </p>
+        </div>
+
+        <div class="balance-card">
+            <h3>Ł Litecoin</h3>
+            <p>
+                <span th:text="${#numbers.formatDecimal(ltcBalance != null ? ltcBalance : 0, 1, 'POINT', 8, 'POINT')}">0.00000000</span>
+                LTC
+            </p>
+        </div>
+
+    </div>
+
+    <div class="form-card">
+
+        <h2>Withdrawal Details</h2>
+
+        <div th:if="${success != null}"
+             class="message success"
+             th:text="${success}">
+        </div>
+
+        <div th:if="${error != null}"
+             class="message error"
+             th:text="${error}">
+        </div>
+
+        <form th:action="@{/withdraw}" method="post">
+
+            <div class="form-group">
+                <label for="currency">Select Cryptocurrency</label>
+
+                <select id="currency" name="currency" required>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                    <option value="LTC">Litecoin (LTC)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Withdrawal Amount</label>
+
+                <input
+                        type="number"
+                        id="amount"
+                        name="amount"
+                        min="0.00000001"
+                        max="999999999999.99999999"
+                        step="0.00000001"
+                        placeholder="Enter amount"
+                        required>
+            </div>
+
+            <button type="submit" class="withdraw-btn">
+                Withdraw Cryptocurrency
+            </button>
+
+        </form>
+
+        <div class="notice">
+            <strong>Demo notice:</strong>
+            Withdrawals are simulated within this application.
+            No real cryptocurrency is transferred to a blockchain address.
+        </div>
+
+    </div>
+
+    <a th:href="@{/home}" class="back-link">
+        ← Back to Dashboard
+    </a>
+
+</div>
+
+</body>
+</html>
+```

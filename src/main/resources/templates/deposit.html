@@ -1,0 +1,240 @@
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Crypto - CryptoWallet 2.0</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0f1f, #1b2845);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header h1 {
+            color: #ffd700;
+            font-size: 23px;
+            margin: 0;
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        nav a, .back-link {
+            color: #ffd700;
+            text-decoration: none;
+        }
+
+        nav a:hover, .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 45px auto;
+            padding: 0 20px;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 32px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #c4cad8;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 9px;
+            font-weight: 600;
+            color: #e1e5ef;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #46516a;
+            border-radius: 10px;
+            background: #17233c;
+            color: white;
+            font-size: 16px;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid #ffd700;
+            outline-offset: 2px;
+        }
+
+        .btn {
+            background: #ffd700;
+            color: #111827;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #fff0a6;
+        }
+
+        .message {
+            padding: 14px;
+            border-radius: 9px;
+            margin-top: 20px;
+            overflow-wrap: anywhere;
+            line-height: 1.5;
+        }
+
+        .success {
+            background: rgba(0, 255, 136, 0.1);
+            color: #71ffba;
+            border: 1px solid #00ff88;
+        }
+
+        .error {
+            background: rgba(255, 68, 68, 0.1);
+            color: #ffaaaa;
+            border: 1px solid #ff6666;
+        }
+
+        .notice {
+            color: #c4cad8;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 18px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 22px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 500px) {
+            header {
+                padding: 18px;
+            }
+
+            .form-card {
+                padding: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>₿ CryptoWallet 2.0</h1>
+
+    <nav>
+        <a th:href="@{/home}">Dashboard</a>
+        <a th:href="@{/history}">Transactions</a>
+        <a th:href="@{/logout}">Logout</a>
+    </nav>
+</header>
+
+<main class="container">
+    <section class="form-card">
+
+        <h2>Deposit Cryptocurrency</h2>
+
+        <p class="subtitle">
+            Select an asset and enter the quantity to add to your wallet.
+        </p>
+
+        <form th:action="@{/deposit}" method="post">
+
+            <div class="form-group">
+                <label for="currency">Select Cryptocurrency</label>
+
+                <select id="currency" name="currency" required>
+                    <option value="BTC">₿ Bitcoin (BTC)</option>
+                    <option value="ETH">◆ Ethereum (ETH)</option>
+                    <option value="LTC">Ł Litecoin (LTC)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Amount</label>
+
+                <input
+                        type="number"
+                        id="amount"
+                        name="amount"
+                        step="0.00000001"
+                        min="0.00000001"
+                        placeholder="Enter cryptocurrency quantity"
+                        required>
+            </div>
+
+            <button type="submit" class="btn">
+                Deposit Cryptocurrency
+            </button>
+
+        </form>
+
+        <div th:if="${message != null and !#strings.isEmpty(message)}"
+             class="message"
+             th:classappend="${#strings.startsWith(message, 'SUCCESS:')} ? ' success' : ' error'"
+             th:text="${message}">
+        </div>
+
+        <p class="notice">
+            Demo mode: deposits update simulated wallet balances only.
+            No real cryptocurrency is transferred or received.
+        </p>
+
+        <a th:href="@{/home}" class="back-link">
+            ← Back to Dashboard
+        </a>
+
+    </section>
+</main>
+
+</body>
+</html>
+```
