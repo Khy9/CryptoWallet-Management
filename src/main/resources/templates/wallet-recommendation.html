@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wallet Insights | CryptoWallet</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0b1020;
+            color: #f4f6ff;
+        }
+
+        nav {
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #252d43;
+        }
+
+        nav a {
+            color: #aab5d1;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        nav a:hover { color: #8b9cff; }
+
+        .brand { font-size: 21px; font-weight: bold; color: #fff; }
+
+        main {
+            max-width: 1100px;
+            margin: 42px auto;
+            padding: 0 22px;
+        }
+
+        .eyebrow {
+            color: #8b9cff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        h1 { font-size: 34px; margin: 12px 0; }
+        .subtitle { color: #aab5d1; line-height: 1.7; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 28px 0;
+        }
+
+        .card {
+            background: #141c30;
+            border: 1px solid #29334d;
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .stat-label { color: #aab5d1; font-size: 13px; }
+        .stat-value { font-size: 25px; font-weight: bold; margin-top: 12px; overflow-wrap: anywhere; }
+
+        .recommendation {
+            background: linear-gradient(135deg, #1b2850, #17223a);
+            border: 1px solid #5368c5;
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .recommendation h2 { margin: 12px 0; font-size: 27px; }
+        .recommendation p { color: #d0d8f0; line-height: 1.8; }
+
+        .pill {
+            display: inline-block;
+            background: #263969;
+            color: #c7d2ff;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .comparison h3 { margin-top: 0; }
+        .comparison p, li { color: #b9c4dc; line-height: 1.7; }
+        ul { padding-left: 20px; }
+
+        .note {
+            margin-top: 22px;
+            font-size: 12px;
+            color: #8f9bb7;
+            line-height: 1.7;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 26px;
+            color: #b8c5ff;
+            text-decoration: none;
+        }
+
+        @media (max-width: 750px) {
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .comparison { grid-template-columns: 1fr; }
+            h1 { font-size: 28px; }
+            nav { padding: 18px 5%; }
+            nav a { margin-left: 10px; }
+        }
+
+        @media (max-width: 420px) {
+            .stats { grid-template-columns: 1fr 1fr; }
+            .stat-value { font-size: 20px; }
+            .card { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="brand">₿ CryptoWallet</div>
+    <div>
+        <a th:href="@{/home}">Dashboard</a>
+        <a th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<main>
+    <div class="eyebrow">Personalized wallet insights</div>
+    <h1 th:text="'Your Wallet, ' + ${username}">Your Wallet</h1>
+    <p class="subtitle">
+        Understand your current holdings and explore which wallet storage
+        approach may suit your needs.
+    </p>
+
+    <section class="stats">
+        <div class="card">
+            <div class="stat-label">Available wallet balance</div>
+            <div class="stat-value">
+                $<span th:text="${balance}">0.00</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Bitcoin (BTC)</div>
+            <div class="stat-value" th:text="${btcBalance}">0</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Ethereum (ETH)</div>
+            <div class="stat-value" th:text="${ethBalance}">0</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Litecoin (LTC)</div>
+            <div class="stat-value" th:text="${ltcBalance}">0</div>
+        </div>
+    </section>
+
+    <section class="recommendation">
+        <span class="pill">YOUR SUGGESTED APPROACH</span>
+        <h2 th:text="${recommendation}">Wallet Recommendation</h2>
+        <p th:text="${reason}">Your recommendation will appear here.</p>
+        <p>
+            <strong>Recorded transactions:</strong>
+            <span th:text="${transactionCount}">0</span>
+            &nbsp; | &nbsp;
+            <strong>Crypto types held:</strong>
+            <span th:text="${holdingsCount}">0</span>
+        </p>
+    </section>
+
+    <div class="comparison">
+        <section class="card">
+            <h3>⚡ Hot Wallet</h3>
+            <p>Connected to the internet and designed for convenient access.</p>
+            <ul>
+                <li>Useful for frequent transactions</li>
+                <li>Quick access from supported devices</li>
+                <li>Greater exposure to online threats</li>
+            </ul>
+            <p><strong>Consider it for:</strong> Everyday crypto use.</p>
+        </section>
+
+        <section class="card">
+            <h3>🛡️ Cold Wallet</h3>
+            <p>Keeps private keys offline when configured and used correctly.</p>
+            <ul>
+                <li>Useful for long-term storage</li>
+                <li>Reduces exposure to online attacks</li>
+                <li>Requires careful backup and key protection</li>
+            </ul>
+            <p><strong>Consider it for:</strong> Holdings you rarely access.</p>
+        </section>
+    </div>
+
+    <p class="note">
+        These suggestions are based on recorded application data and simple
+        rules, not a full financial or security assessment. This project
+        simulates cryptocurrency activity and does not manage real blockchain
+        assets. A cold wallet is not automatically risk-free.
+    </p>
+
+    <a class="back" th:href="@{/home}">← Back to Dashboard</a>
+</main>
+
+</body>
+</html>
